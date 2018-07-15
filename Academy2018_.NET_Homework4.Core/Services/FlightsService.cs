@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<FlightDto> _validator;
+        private readonly AbstractValidator<Flight> _validator;
 
         public FlightsService(
             UnitOfWork unitOfWork,
             IMapper mapper,
-            AbstractValidator<FlightDto> validator)
+            AbstractValidator<Flight> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public FlightDto GetById(object id)
         {
             var response = _mapper.Map<Flight, FlightDto>(
-                _unitOfWork.Flights.Get().FirstOrDefault(f => f.Number == (string)id));
+                _unitOfWork.Flights.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<FlightDto, Flight>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.Flights.Create(
-                    _mapper.Map<FlightDto, Flight>(dto));
+                return _unitOfWork.Flights.Create(model);
             }
 
             throw new ValidationException(validationResult.Errors);
@@ -73,12 +73,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.Flights.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<FlightDto, Flight>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.Flights.Update((string)id,
-                        _mapper.Map<FlightDto, Flight>(dto));
+                    _unitOfWork.Flights.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }
@@ -97,7 +97,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         {
             if (_unitOfWork.Flights.IsExist(id))
             {
-                _unitOfWork.Flights.Delete((string)id);
+                _unitOfWork.Flights.Delete(id);
 
                 _unitOfWork.SaveChanges();
             }

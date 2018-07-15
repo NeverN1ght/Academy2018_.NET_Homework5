@@ -1,11 +1,12 @@
-﻿using Academy2018_.NET_Homework5.Shared.DTOs;
+﻿using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Shared.DTOs;
 using FluentValidation;
 
 namespace Academy2018_.NET_Homework5.Core.Validation
 {
-    public class TicketDtoValidator: AbstractValidator<TicketDto>
+    public class TicketValidator: AbstractValidator<Ticket>
     {
-        public TicketDtoValidator()
+        public TicketValidator()
         {
             RuleFor(t => t.FlightNumber)
                 .NotNull()

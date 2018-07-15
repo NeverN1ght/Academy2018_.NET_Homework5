@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<StewardesseDto> _validator;
+        private readonly AbstractValidator<Stewardesse> _validator;
 
         public StewardessesService(
             UnitOfWork unitOfWork, 
             IMapper mapper,
-            AbstractValidator<StewardesseDto> validator)
+            AbstractValidator<Stewardesse> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public StewardesseDto GetById(object id)
         {
             var response = _mapper.Map<Stewardesse, StewardesseDto>(
-                _unitOfWork.Stewardesses.Get().FirstOrDefault(s => s.Id == (int)id));
+                _unitOfWork.Stewardesses.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<StewardesseDto, Stewardesse>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.Stewardesses.Create(
-                    _mapper.Map<StewardesseDto, Stewardesse>(dto));
+                return _unitOfWork.Stewardesses.Create(model);
             }
 
             throw new ValidationException(validationResult.Errors);
@@ -73,12 +73,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.Stewardesses.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<StewardesseDto, Stewardesse>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.Stewardesses.Update((int)id,
-                        _mapper.Map<StewardesseDto, Stewardesse>(dto));
+                    _unitOfWork.Stewardesses.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }

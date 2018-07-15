@@ -7,6 +7,8 @@ namespace Academy2018_.NET_Homework5.Infrastructure.Abstractions
     {
         IEnumerable<TEntity> Get();
 
+        TEntity Get(object id);
+
         object Create(TEntity entity);
 
         void Update(object id, TEntity entity);

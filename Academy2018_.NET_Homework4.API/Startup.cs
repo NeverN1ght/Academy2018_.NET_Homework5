@@ -50,14 +50,14 @@ namespace Academy2018_.NET_Homework5.API
             services.AddScoped<IService<AirplaneTypeDto>, AirplaneTypesService>();
             services.AddScoped<IService<CrewDto>, CrewsService>();
 
-            services.AddTransient<AbstractValidator<PilotDto>, PilotDtoValidator>();
-            services.AddTransient<AbstractValidator<AirplaneDto>, AirplaneDtoValidator>();
-            services.AddTransient<AbstractValidator<DepartureDto>, DepartureDtoValidator>();
-            services.AddTransient<AbstractValidator<StewardesseDto>, StewardesseDtoValidator>();
-            services.AddTransient<AbstractValidator<CrewDto>, CrewDtoValidator>();
-            services.AddTransient<AbstractValidator<FlightDto>, FlightDtoValidator>();
-            services.AddTransient<AbstractValidator<TicketDto>, TicketDtoValidator>();
-            services.AddTransient<AbstractValidator<AirplaneTypeDto>, AirplaneTypeDtoValidator>();
+            services.AddTransient<AbstractValidator<Pilot>, PilotValidator>();
+            services.AddTransient<AbstractValidator<Airplane>, AirplaneValidator>();
+            services.AddTransient<AbstractValidator<Departure>, DepartureValidator>();
+            services.AddTransient<AbstractValidator<Stewardesse>, StewardesseValidator>();
+            services.AddTransient<AbstractValidator<Crew>, CrewValidator>();
+            services.AddTransient<AbstractValidator<Flight>, FlightValidator>();
+            services.AddTransient<AbstractValidator<Ticket>, TicketValidator>();
+            services.AddTransient<AbstractValidator<AirplaneType>, AirplaneTypeValidator>();
 
             services.AddTransient<IRepository<Pilot>, PilotsRepository>();
             services.AddTransient<IRepository<Flight>, FlightsRepository>();

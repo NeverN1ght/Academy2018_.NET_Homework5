@@ -1,11 +1,12 @@
-﻿using Academy2018_.NET_Homework5.Shared.DTOs;
+﻿using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Shared.DTOs;
 using FluentValidation;
 
 namespace Academy2018_.NET_Homework5.Core.Validation
 {
-    public class DepartureDtoValidator: AbstractValidator<DepartureDto>
+    public class DepartureValidator: AbstractValidator<Departure>
     {
-        public DepartureDtoValidator()
+        public DepartureValidator()
         {
             RuleFor(d => d.Airplane)
                 .NotNull();

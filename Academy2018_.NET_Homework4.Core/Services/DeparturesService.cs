@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<DepartureDto> _validator;
+        private readonly AbstractValidator<Departure> _validator;
 
         public DeparturesService(
             UnitOfWork unitOfWork,
             IMapper mapper,
-            AbstractValidator<DepartureDto> validator)
+            AbstractValidator<Departure> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public DepartureDto GetById(object id)
         {
             var response = _mapper.Map<Departure, DepartureDto>(
-                _unitOfWork.Departures.Get().FirstOrDefault(d => d.Id == (int)id));
+                _unitOfWork.Departures.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<DepartureDto, Departure>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.Departures.Create(
-                    _mapper.Map<DepartureDto, Departure>(dto));
+                return _unitOfWork.Departures.Create(model);
             }
 
             throw new ValidationException(validationResult.Errors);
@@ -73,12 +73,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.Departures.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<DepartureDto, Departure>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.Departures.Update((int)id,
-                        _mapper.Map<DepartureDto, Departure>(dto));
+                    _unitOfWork.Departures.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }
@@ -97,7 +97,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         {
             if (_unitOfWork.Departures.IsExist(id))
             {
-                _unitOfWork.Departures.Delete((int)id);
+                _unitOfWork.Departures.Delete(id);
 
                 _unitOfWork.SaveChanges();
             }

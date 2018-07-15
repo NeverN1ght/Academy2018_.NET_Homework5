@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<AirplaneTypeDto> _validator;
+        private readonly AbstractValidator<AirplaneType> _validator;
 
         public AirplaneTypesService(
             UnitOfWork unitOfWork,
             IMapper mapper,
-            AbstractValidator<AirplaneTypeDto> validator)
+            AbstractValidator<AirplaneType> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public AirplaneTypeDto GetById(object id)
         {
             var response = _mapper.Map<AirplaneType, AirplaneTypeDto>(
-                _unitOfWork.AirplaneTypes.Get().FirstOrDefault(a => a.Id == (int)id));
+                _unitOfWork.AirplaneTypes.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<AirplaneTypeDto, AirplaneType>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.AirplaneTypes.Create(
-                    _mapper.Map<AirplaneTypeDto, AirplaneType>(dto));
+                return _unitOfWork.AirplaneTypes.Create(model);
             }
 
             throw new ValidationException(validationResult.Errors);
@@ -73,12 +73,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.AirplaneTypes.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<AirplaneTypeDto, AirplaneType>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.AirplaneTypes.Update((int)id,
-                        _mapper.Map<AirplaneTypeDto, AirplaneType>(dto));
+                    _unitOfWork.AirplaneTypes.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }
@@ -97,7 +97,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         {
             if (_unitOfWork.AirplaneTypes.IsExist(id))
             {
-                _unitOfWork.AirplaneTypes.Delete((int)id);
+                _unitOfWork.AirplaneTypes.Delete(id);
 
                 _unitOfWork.SaveChanges();
             }

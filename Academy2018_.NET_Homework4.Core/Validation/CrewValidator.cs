@@ -1,11 +1,12 @@
-﻿using Academy2018_.NET_Homework5.Shared.DTOs;
+﻿using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Shared.DTOs;
 using FluentValidation;
 
 namespace Academy2018_.NET_Homework5.Core.Validation
 {
-    public class CrewDtoValidator: AbstractValidator<CrewDto>
+    public class CrewValidator: AbstractValidator<Crew>
     {
-        public CrewDtoValidator()
+        public CrewValidator()
         {
             RuleFor(c => c.Pilot)
                 .NotNull();

@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<TicketDto> _validator;
+        private readonly AbstractValidator<Ticket> _validator;
 
         public TicketsService(
             UnitOfWork unitOfWork, 
             IMapper mapper,
-            AbstractValidator<TicketDto> validator)
+            AbstractValidator<Ticket> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public TicketDto GetById(object id)
         {
             var response = _mapper.Map<Ticket, TicketDto>(
-                _unitOfWork.Tickets.Get().FirstOrDefault(t => t.Id == (int)id));
+                _unitOfWork.Tickets.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<TicketDto, Ticket>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.Tickets.Create(
-                    _mapper.Map<TicketDto, Ticket>(dto));
+                return _unitOfWork.Tickets.Create(model);
             }
 
             throw new ValidationException(validationResult.Errors);
@@ -73,12 +73,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.Tickets.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<TicketDto, Ticket>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.Tickets.Update((int)id,
-                        _mapper.Map<TicketDto, Ticket>(dto));
+                    _unitOfWork.Tickets.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }
@@ -97,7 +97,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         {
             if (_unitOfWork.Tickets.IsExist(id))
             {
-                _unitOfWork.Tickets.Delete((int)id);
+                _unitOfWork.Tickets.Delete(id);
 
                 _unitOfWork.SaveChanges();
             }

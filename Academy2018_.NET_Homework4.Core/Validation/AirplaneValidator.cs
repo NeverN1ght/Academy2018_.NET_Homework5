@@ -1,12 +1,13 @@
 ﻿using System;
+using Academy2018_.NET_Homework5.Infrastructure.Models;
 using Academy2018_.NET_Homework5.Shared.DTOs;
 using FluentValidation;
 
 namespace Academy2018_.NET_Homework5.Core.Validation
 {
-    public class AirplaneDtoValidator: AbstractValidator<AirplaneDto>
+    public class AirplaneValidator: AbstractValidator<Airplane>
     {
-        public AirplaneDtoValidator()
+        public AirplaneValidator()
         {
             RuleFor(a => a.ExploitationTerm)
                 .NotNull()

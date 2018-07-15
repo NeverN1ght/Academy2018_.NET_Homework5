@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<PilotDto> _validator;
+        private readonly AbstractValidator<Pilot> _validator;
 
         public PilotsService(
             UnitOfWork unitOfWork, 
             IMapper mapper, 
-            AbstractValidator<PilotDto> validator)
+            AbstractValidator<Pilot> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public PilotDto GetById(object id)
         {
             var response = _mapper.Map<Pilot, PilotDto>(
-                _unitOfWork.Pilots.Get().FirstOrDefault(p => p.Id == (int)id));
+                _unitOfWork.Pilots.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<PilotDto, Pilot>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.Pilots.Create(
-                    _mapper.Map<PilotDto, Pilot>(dto));
+                return _unitOfWork.Pilots.Create(model);
             }
             else
             {
@@ -75,12 +75,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.Pilots.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<PilotDto, Pilot>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.Pilots.Update((int)id,
-                        _mapper.Map<PilotDto, Pilot>(dto));
+                    _unitOfWork.Pilots.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }
@@ -99,7 +99,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         {
             if (_unitOfWork.Pilots.IsExist(id))
             {
-                _unitOfWork.Pilots.Delete((int)id);
+                _unitOfWork.Pilots.Delete(id);
 
                 _unitOfWork.SaveChanges();
             }

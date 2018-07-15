@@ -15,12 +15,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly AbstractValidator<CrewDto> _validator;
+        private readonly AbstractValidator<Crew> _validator;
 
         public CrewsService(
             UnitOfWork unitOfWork,
             IMapper mapper,
-            AbstractValidator<CrewDto> validator)
+            AbstractValidator<Crew> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,7 +36,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public CrewDto GetById(object id)
         {
             var response = _mapper.Map<Crew, CrewDto>(
-                _unitOfWork.Crews.Get().FirstOrDefault(c => c.Id == (int)id));
+                _unitOfWork.Crews.Get(id));
 
             if (response == null)
             {
@@ -53,12 +53,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            var validationResult = _validator.Validate(dto);
+            var model = _mapper.Map<CrewDto, Crew>(dto);
+            var validationResult = _validator.Validate(model);
 
             if (validationResult.IsValid)
             {
-                return _unitOfWork.Crews.Create(
-                    _mapper.Map<CrewDto, Crew>(dto));
+                return _unitOfWork.Crews.Create(model);
             }
 
             throw new ValidationException(validationResult.Errors);
@@ -73,12 +73,12 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (_unitOfWork.Crews.IsExist(id))
             {
-                var validationResult = _validator.Validate(dto);
+                var model = _mapper.Map<CrewDto, Crew>(dto);
+                var validationResult = _validator.Validate(model);
 
                 if (validationResult.IsValid)
                 {
-                    _unitOfWork.Crews.Update((int)id,
-                        _mapper.Map<CrewDto, Crew>(dto));
+                    _unitOfWork.Crews.Update(id, model);
 
                     _unitOfWork.SaveChanges();
                 }
@@ -97,7 +97,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
         {
             if (_unitOfWork.Crews.IsExist(id))
             {
-                _unitOfWork.Crews.Delete((int)id);
+                _unitOfWork.Crews.Delete(id);
 
                 _unitOfWork.SaveChanges();
             }

@@ -2,6 +2,7 @@
 using Academy2018_.NET_Homework5.Infrastructure.Database;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
 using Academy2018_.NET_Homework5.Infrastructure.Repositories;
+using Academy2018_.NET_Homework5.Infrastructure.Repositories.Basic;
 
 namespace Academy2018_.NET_Homework5.Infrastructure.UnitOfWork
 {

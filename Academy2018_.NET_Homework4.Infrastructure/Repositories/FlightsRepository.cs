@@ -24,6 +24,11 @@ namespace Academy2018_.NET_Homework5.Infrastructure.Repositories
                 .Include(f => f.Tickets);
         }
 
+        public Flight Get(object id)
+        {
+            return _ctx.Flights.Find(id);
+        }
+
         public object Create(Flight entity)
         {
             _ctx.Flights.Add(entity);
@@ -36,13 +41,13 @@ namespace Academy2018_.NET_Homework5.Infrastructure.Repositories
         public void Update(object id, Flight entity)
         {
             entity.Number = (string)id;
-            var existedEntity = _ctx.Flights.Find((int)id);
+            var existedEntity = _ctx.Flights.Find(id);
             _ctx.Entry(existedEntity).CurrentValues.SetValues(entity);
         }
 
         public void Delete(object id)
         {
-            var entity = _ctx.Flights.Find((string)id);
+            var entity = _ctx.Flights.Find(id);
             Delete(entity);
         }
 
@@ -53,7 +58,7 @@ namespace Academy2018_.NET_Homework5.Infrastructure.Repositories
 
         public bool IsExist(object id)
         {
-            return _ctx.Flights.FirstOrDefault(f => f.Number == (string) id) != null;
+            return _ctx.Flights.Find(id) != null;
         }
     }
 }
