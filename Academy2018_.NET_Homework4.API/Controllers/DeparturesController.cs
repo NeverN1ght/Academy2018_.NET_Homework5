@@ -3,6 +3,7 @@ using Academy2018_.NET_Homework5.Shared.DTOs;
 using Academy2018_.NET_Homework5.Shared.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Academy2018_.NET_Homework5.API.Controllers
 {
@@ -55,6 +56,10 @@ namespace Academy2018_.NET_Homework5.API.Controllers
             catch (NullBodyException)
             {
                 return BadRequest();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.InnerException.Message);
             }
         }
         

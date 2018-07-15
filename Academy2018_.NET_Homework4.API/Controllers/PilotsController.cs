@@ -60,6 +60,10 @@ namespace Academy2018_.NET_Homework5.API.Controllers
             {
                 return BadRequest();
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
         }
         
         // PUT: api/Pilots/5
