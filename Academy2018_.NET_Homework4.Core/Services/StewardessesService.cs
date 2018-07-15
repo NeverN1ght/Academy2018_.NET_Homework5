@@ -3,6 +3,7 @@ using System.Linq;
 using Academy2018_.NET_Homework5.Core.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Infrastructure.UnitOfWork;
 using Academy2018_.NET_Homework5.Shared.DTOs;
 using Academy2018_.NET_Homework5.Shared.Exceptions;
 using AutoMapper;
@@ -12,16 +13,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
 {
     public class StewardessesService: IService<StewardesseDto>
     {
-        private readonly IRepository<Stewardesse> _repository;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly AbstractValidator<StewardesseDto> _validator;
 
         public StewardessesService(
-            IRepository<Stewardesse> repository, 
+            UnitOfWork unitOfWork, 
             IMapper mapper,
             AbstractValidator<StewardesseDto> validator)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _validator = validator;
         }
@@ -29,13 +30,13 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public IEnumerable<StewardesseDto> GetAll()
         {
             return _mapper.Map<IEnumerable<Stewardesse>, IEnumerable<StewardesseDto>>(
-                _repository.Get());
+                _unitOfWork.Stewardesses.Get());
         }
 
         public StewardesseDto GetById(object id)
         {
             var response = _mapper.Map<Stewardesse, StewardesseDto>(
-                _repository.Get().FirstOrDefault(s => s.Id == (int)id));
+                _unitOfWork.Stewardesses.Get().FirstOrDefault(s => s.Id == (int)id));
 
             if (response == null)
             {
@@ -56,7 +57,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (validationResult.IsValid)
             {
-                return _repository.Create(
+                return _unitOfWork.Stewardesses.Create(
                     _mapper.Map<StewardesseDto, Stewardesse>(dto));
             }
 
@@ -70,14 +71,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            if (_repository.IsExist(id))
+            if (_unitOfWork.Stewardesses.IsExist(id))
             {
                 var validationResult = _validator.Validate(dto);
 
                 if (validationResult.IsValid)
                 {
-                    _repository.Update((int)id,
+                    _unitOfWork.Stewardesses.Update((int)id,
                         _mapper.Map<StewardesseDto, Stewardesse>(dto));
+
+                    _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -92,9 +95,11 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
         public void Delete(object id)
         {
-            if (_repository.IsExist(id))
+            if (_unitOfWork.Stewardesses.IsExist(id))
             {
-                _repository.Delete((int)id);
+                _unitOfWork.Stewardesses.Delete((int)id);
+
+                _unitOfWork.SaveChanges();
             }
             else
             {
@@ -103,3 +108,4 @@ namespace Academy2018_.NET_Homework5.Core.Services
         }
     }
 }
+

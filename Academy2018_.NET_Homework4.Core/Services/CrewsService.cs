@@ -3,6 +3,7 @@ using System.Linq;
 using Academy2018_.NET_Homework5.Core.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Infrastructure.UnitOfWork;
 using Academy2018_.NET_Homework5.Shared.DTOs;
 using Academy2018_.NET_Homework5.Shared.Exceptions;
 using AutoMapper;
@@ -12,16 +13,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
 {
     public class CrewsService: IService<CrewDto>
     {
-        private readonly IRepository<Crew> _repository;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly AbstractValidator<CrewDto> _validator;
 
         public CrewsService(
-            IRepository<Crew> repository, 
+            UnitOfWork unitOfWork,
             IMapper mapper,
             AbstractValidator<CrewDto> validator)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _validator = validator;
         }
@@ -29,13 +30,13 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public IEnumerable<CrewDto> GetAll()
         {
             return _mapper.Map<IEnumerable<Crew>, IEnumerable<CrewDto>>(
-                _repository.Get());
+                _unitOfWork.Crews.Get());
         }
 
         public CrewDto GetById(object id)
         {
             var response = _mapper.Map<Crew, CrewDto>(
-                _repository.Get().FirstOrDefault(c => c.Id == (int)id));
+                _unitOfWork.Crews.Get().FirstOrDefault(c => c.Id == (int)id));
 
             if (response == null)
             {
@@ -56,7 +57,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (validationResult.IsValid)
             {
-                return _repository.Create(
+                return _unitOfWork.Crews.Create(
                     _mapper.Map<CrewDto, Crew>(dto));
             }
 
@@ -70,14 +71,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            if (_repository.IsExist(id))
+            if (_unitOfWork.Crews.IsExist(id))
             {
                 var validationResult = _validator.Validate(dto);
 
                 if (validationResult.IsValid)
                 {
-                    _repository.Update((int)id,
+                    _unitOfWork.Crews.Update((int)id,
                         _mapper.Map<CrewDto, Crew>(dto));
+
+                    _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -92,9 +95,11 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
         public void Delete(object id)
         {
-            if (_repository.IsExist(id))
+            if (_unitOfWork.Crews.IsExist(id))
             {
-                _repository.Delete((int)id);
+                _unitOfWork.Crews.Delete((int)id);
+
+                _unitOfWork.SaveChanges();
             }
             else
             {

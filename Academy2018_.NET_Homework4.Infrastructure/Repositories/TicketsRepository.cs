@@ -2,53 +2,55 @@
 using System.Linq;
 using Academy2018_.NET_Homework5.Infrastructure.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Data;
+using Academy2018_.NET_Homework5.Infrastructure.Database;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
 
 namespace Academy2018_.NET_Homework5.Infrastructure.Repositories
 {
     public class TicketsRepository: IRepository<Ticket>
     {
-        private readonly DataSource _dataSource;
+        private readonly AirportContext _ctx;
 
-        public TicketsRepository(DataSource dataSource)
+        public TicketsRepository(AirportContext ctx)
         {
-            _dataSource = dataSource;
+            _ctx = ctx;
         }
 
         public IEnumerable<Ticket> Get()
         {
-            return _dataSource.Tickets;
+            return _ctx.Tickets;
         }
 
         public object Create(Ticket entity)
         {
-            entity.Id = _dataSource.Tickets.Max(t => t.Id) + 1;
-            _dataSource.Tickets.Add(entity);
+            _ctx.Tickets.Add(entity);
 
+            // make save to get created entity id
+            _ctx.SaveChanges();
             return entity.Id;
         }
 
         public void Update(object id, Ticket entity)
         {
-            Delete(id);
             entity.Id = (int)id;
-            _dataSource.Tickets.Add(entity);
+            var existedEntity = _ctx.Tickets.Find((int)id);
+            _ctx.Entry(existedEntity).CurrentValues.SetValues(entity);
         }
 
         public void Delete(object id)
         {
-            var entity = _dataSource.Tickets.Find(t => t.Id == (int)id);
+            var entity = _ctx.Tickets.Find((int)id);
             Delete(entity);
         }
 
         public void Delete(Ticket entity)
         {
-            _dataSource.Tickets.Remove(entity);
+            _ctx.Tickets.Remove(entity);
         }
 
         public bool IsExist(object id)
         {
-            return _dataSource.Tickets.FirstOrDefault(t => t.Id == (int) id) != null;         
+            return _ctx.Tickets.FirstOrDefault(t => t.Id == (int) id) != null;         
         }
     }
 }

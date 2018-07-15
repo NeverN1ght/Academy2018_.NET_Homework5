@@ -2,53 +2,55 @@
 using System.Linq;
 using Academy2018_.NET_Homework5.Infrastructure.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Data;
+using Academy2018_.NET_Homework5.Infrastructure.Database;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
 
 namespace Academy2018_.NET_Homework5.Infrastructure.Repositories
 {
     public class AirplaneTypesRepository: IRepository<AirplaneType>
     {
-        private readonly DataSource _dataSource;
+        private readonly AirportContext _ctx;
 
-        public AirplaneTypesRepository(DataSource dataSource)
+        public AirplaneTypesRepository(AirportContext ctx)
         {
-            _dataSource = dataSource;
+            _ctx = ctx;
         }
 
         public IEnumerable<AirplaneType> Get()
         {
-            return _dataSource.AirplaneTypes;
+            return _ctx.AirplaneTypes;
         }
 
         public object Create(AirplaneType entity)
         {
-            entity.Id = _dataSource.AirplaneTypes.Max(a => a.Id) + 1;
-            _dataSource.AirplaneTypes.Add(entity);
+            _ctx.AirplaneTypes.Add(entity);
 
+            // make save to get created entity id
+            _ctx.SaveChanges();
             return entity.Id;
         }
 
         public void Update(object id, AirplaneType entity)
         {
-            Delete(id);
             entity.Id = (int)id;
-            _dataSource.AirplaneTypes.Add(entity);
+            var existedEntity = _ctx.AirplaneTypes.Find((int)id);
+            _ctx.Entry(existedEntity).CurrentValues.SetValues(entity);
         }
 
         public void Delete(object id)
         {
-            var entity = _dataSource.AirplaneTypes.Find(a => a.Id == (int)id);
+            var entity = _ctx.AirplaneTypes.Find((int)id);
             Delete(entity);
         }
 
         public void Delete(AirplaneType entity)
         {
-            _dataSource.AirplaneTypes.Remove(entity);
+            _ctx.AirplaneTypes.Remove(entity);
         }
 
         public bool IsExist(object id)
         {
-            return _dataSource.AirplaneTypes.FirstOrDefault(a => a.Id == (int) id) != null;
+            return _ctx.AirplaneTypes.FirstOrDefault(a => a.Id == (int) id) != null;
         }
     }
 }

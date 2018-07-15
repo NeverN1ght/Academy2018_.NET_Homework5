@@ -1,8 +1,12 @@
-﻿using Academy2018_.NET_Homework5.Core.Abstractions;
+﻿using System;
+using Academy2018_.NET_Homework5.Core.Abstractions;
+using Academy2018_.NET_Homework5.Infrastructure.Database;
+using Academy2018_.NET_Homework5.Infrastructure.Models;
 using Academy2018_.NET_Homework5.Shared.DTOs;
 using Academy2018_.NET_Homework5.Shared.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Academy2018_.NET_Homework5.API.Controllers
 {
@@ -12,7 +16,7 @@ namespace Academy2018_.NET_Homework5.API.Controllers
     {
         private readonly IService<PilotDto> _pilotsService;
 
-        public PilotsController(IService<PilotDto> pilotsService)
+        public PilotsController(IService<PilotDto> pilotsService, AirportContext ctx)
         {
             _pilotsService = pilotsService;
         }

@@ -3,6 +3,7 @@ using System.Linq;
 using Academy2018_.NET_Homework5.Core.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Infrastructure.UnitOfWork;
 using Academy2018_.NET_Homework5.Shared.DTOs;
 using Academy2018_.NET_Homework5.Shared.Exceptions;
 using AutoMapper;
@@ -12,16 +13,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
 {
     public class AirplaneTypesService: IService<AirplaneTypeDto>
     {
-        private readonly IRepository<AirplaneType> _repository;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly AbstractValidator<AirplaneTypeDto> _validator;
 
         public AirplaneTypesService(
-            IRepository<AirplaneType> repository,
+            UnitOfWork unitOfWork,
             IMapper mapper,
             AbstractValidator<AirplaneTypeDto> validator)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _validator = validator;
         }
@@ -29,13 +30,13 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public IEnumerable<AirplaneTypeDto> GetAll()
         {
             return _mapper.Map<IEnumerable<AirplaneType>, IEnumerable<AirplaneTypeDto>>(
-                _repository.Get());
+                _unitOfWork.AirplaneTypes.Get());
         }
 
         public AirplaneTypeDto GetById(object id)
         {
             var response = _mapper.Map<AirplaneType, AirplaneTypeDto>(
-                _repository.Get().FirstOrDefault(a => a.Id == (int)id));
+                _unitOfWork.AirplaneTypes.Get().FirstOrDefault(a => a.Id == (int)id));
 
             if (response == null)
             {
@@ -56,7 +57,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (validationResult.IsValid)
             {
-                return _repository.Create(
+                return _unitOfWork.AirplaneTypes.Create(
                     _mapper.Map<AirplaneTypeDto, AirplaneType>(dto));
             }
 
@@ -70,14 +71,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            if (_repository.IsExist(id))
+            if (_unitOfWork.AirplaneTypes.IsExist(id))
             {
                 var validationResult = _validator.Validate(dto);
 
                 if (validationResult.IsValid)
                 {
-                    _repository.Update((int)id,
+                    _unitOfWork.AirplaneTypes.Update((int)id,
                         _mapper.Map<AirplaneTypeDto, AirplaneType>(dto));
+
+                    _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -92,9 +95,11 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
         public void Delete(object id)
         {
-            if (_repository.IsExist(id))
+            if (_unitOfWork.AirplaneTypes.IsExist(id))
             {
-                _repository.Delete((int)id);
+                _unitOfWork.AirplaneTypes.Delete((int)id);
+
+                _unitOfWork.SaveChanges();
             }
             else
             {

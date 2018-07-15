@@ -3,6 +3,7 @@ using System.Linq;
 using Academy2018_.NET_Homework5.Core.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Abstractions;
 using Academy2018_.NET_Homework5.Infrastructure.Models;
+using Academy2018_.NET_Homework5.Infrastructure.UnitOfWork;
 using Academy2018_.NET_Homework5.Shared.DTOs;
 using Academy2018_.NET_Homework5.Shared.Exceptions;
 using AutoMapper;
@@ -12,16 +13,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
 {
     public class FlightsService: IService<FlightDto>
     {
-        private readonly IRepository<Flight> _repository;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly AbstractValidator<FlightDto> _validator;
 
         public FlightsService(
-            IRepository<Flight> repository, 
+            UnitOfWork unitOfWork,
             IMapper mapper,
             AbstractValidator<FlightDto> validator)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _validator = validator;
         }
@@ -29,13 +30,13 @@ namespace Academy2018_.NET_Homework5.Core.Services
         public IEnumerable<FlightDto> GetAll()
         {
             return _mapper.Map<IEnumerable<Flight>, IEnumerable<FlightDto>>(
-                _repository.Get());
+                _unitOfWork.Flights.Get());
         }
 
         public FlightDto GetById(object id)
         {
             var response = _mapper.Map<Flight, FlightDto>(
-                _repository.Get().FirstOrDefault(f => f.Number == (string)id));
+                _unitOfWork.Flights.Get().FirstOrDefault(f => f.Number == (string)id));
 
             if (response == null)
             {
@@ -56,7 +57,7 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
             if (validationResult.IsValid)
             {
-                return _repository.Create(
+                return _unitOfWork.Flights.Create(
                     _mapper.Map<FlightDto, Flight>(dto));
             }
 
@@ -70,14 +71,16 @@ namespace Academy2018_.NET_Homework5.Core.Services
                 throw new NullBodyException();
             }
 
-            if (_repository.IsExist(id))
+            if (_unitOfWork.Flights.IsExist(id))
             {
                 var validationResult = _validator.Validate(dto);
 
                 if (validationResult.IsValid)
                 {
-                    _repository.Update((string)id,
+                    _unitOfWork.Flights.Update((string)id,
                         _mapper.Map<FlightDto, Flight>(dto));
+
+                    _unitOfWork.SaveChanges();
                 }
                 else
                 {
@@ -92,9 +95,11 @@ namespace Academy2018_.NET_Homework5.Core.Services
 
         public void Delete(object id)
         {
-            if (_repository.IsExist(id))
+            if (_unitOfWork.Flights.IsExist(id))
             {
-                _repository.Delete((string)id);
+                _unitOfWork.Flights.Delete((string)id);
+
+                _unitOfWork.SaveChanges();
             }
             else
             {

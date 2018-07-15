@@ -44,9 +44,9 @@ namespace Academy2018_.NET_Homework5.API.Controllers
         {
             try
             {
-                var createdNumber = _flightsService.Add(dto);
+                var createdId = _flightsService.Add(dto);
                 return CreatedAtAction("Get",
-                    _flightsService.GetById(createdNumber));
+                    _flightsService.GetById(createdId));
             }
             catch (ValidationException ex)
             {
